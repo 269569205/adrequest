@@ -10,7 +10,7 @@ exports.index = function(req, res){
 	//console.log(global.request_settings["request_hash"]);
 	
 	//console.log(req.connection.remoteAddress);
-	//console.log(req());
+	console.log(data);
 	//console.log(typeof(req.query.j)=='undefined');
 	//res.end(JSON.stringify({testkey:"这是一个Value诶"}));
 	//console.log(req);
@@ -109,14 +109,19 @@ exports.index = function(req, res){
 	console.log(d.getHours()+':'+d.getMinutes()+':'+d.getSeconds());
 	//console.log(request.request_settings);
 	as.auto({
-		getplacement:function(callback){
+		checkmysqlconnect:function(callback){
+		global.mysqlclient = require('mysql').createConnection({'host':'localhost','port':3306,'user':global.mysqlroot,'password':global.mysqlpwd});
+		global.clientConnectionReady(mysqlclient,callback);
+		
+		},
+		getplacement:['checkmysqlconnect',function(callback){
 			request.get_placement(data,request,callback);
 			
 		 /*setTimeout(function(){
 			 global.get_placement(data,callback);
             // callback();
          }, 5000);*/
-		},
+		}],
 		getchannel:['getplacement',function(callback){
 			if(request.zone_detail.length==0){
 				request.print_error(1, request.errormessage, request.request_settings['sdk'], 1);

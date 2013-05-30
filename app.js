@@ -13,7 +13,7 @@ var express = require('express')
  require('./lib/config.js')
 var phpfunction = require('./lib/phpfunction');
 global.mysqlclient = require('mysql').createConnection({'host':'localhost','port':3306,'user':global.mysqlroot,'password':global.mysqlpwd});
-global.clientConnectionReady(mysqlclient);
+global.clientConnectionReady(mysqlclient,function(){});
 global.F = require('./lib/request').request;
 global.C = require('./lib/click').click;
 var app = express();
