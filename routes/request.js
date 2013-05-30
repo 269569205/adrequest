@@ -110,11 +110,12 @@ exports.index = function(req, res){
 	//console.log(request.request_settings);
 	as.auto({
 		checkmysqlconnect:function(callback){
-		global.mysqlclient = require('mysql').createConnection({'host':'localhost','port':3306,'user':global.mysqlroot,'password':global.mysqlpwd});
-		global.clientConnectionReady(mysqlclient,callback);
+		
+		global.clientConnectionReady(global.mysqlclient,callback);
 		
 		},
 		getplacement:['checkmysqlconnect',function(callback){
+			
 			request.get_placement(data,request,callback);
 			
 		 /*setTimeout(function(){

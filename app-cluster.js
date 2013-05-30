@@ -19,6 +19,11 @@ cluster.setupMaster({
      console.log('worker ' + worker.process.pid + ' died');
 	 cluster.fork();
    });
+   cluster.on('error', function(worker, code, signal) {
+	   worker.kill();
+	    // console.log('worker ' + worker.process.pid + ' died');
+		// cluster.fork();
+	   });
 } else if (cluster.isWorker) {
 	console.log('I am worker #' + cluster.worker.id);
   	process.on('message', function(msg) {
