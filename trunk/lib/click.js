@@ -64,7 +64,7 @@ exports.click=function(req, res,mysqlclient){
 				query="update md_uaccounts set balance=balance+"+e+" where user_id="+this.zone_detail['creator_id'];
 				this.client.query(query);
 			}
-		}else if(this.request_settings['final_ad']['cost_type']==1){
+		}else if(this.limit['cost_type']==1){
 			
 		}
 	}

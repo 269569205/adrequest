@@ -9,9 +9,12 @@ exports.index = function(req, res){
 	var click=new C(req, res,global.mysqlclient);
 	var as= require('async');
 	as.auto({
-		getzone:function(callback){
-			click.getzone($data,click,callback)
+		checkmysqlconnect:function(callback){
+			global.clientConnectionReady(global.mysqlclient,callback);
 		},
+		getzone:['checkmysqlconnect',function(callback){
+			click.getzone($data,click,callback)
+		}],
 		getcampaignlimit:['getzone',function(callback){
 			click.getcampaignlimit($data,callback);
 		}],
