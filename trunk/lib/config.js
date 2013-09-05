@@ -8,4 +8,4 @@ global.animationurl=global.SITE_URL+"/show/animation";
 
 //-for mongodb
 global.mongodburl="mongodb://andy:andy@192.168.1.110:27017/smwlog";
-global.collections = ["tname"];
+global.collections = ["tname","requests"];
