@@ -409,10 +409,11 @@ exports.request = function(req, res, mysqlclient) {
 
 		switch (zone_detail.zone_type) {
 		case 'banner':
-			query_part['adunit'] = "AND (md_campaigns.campaign_type='network' OR (md_ad_units.adv_status=1 AND md_ad_units.adv_width<="
+			/*query_part['adunit'] = "AND (md_campaigns.campaign_type='network' OR (md_ad_units.adv_status=1 AND md_ad_units.adv_width<="
 					+ zone_detail.zone_width
 					+ " AND md_ad_units.adv_height<="
-					+ zone_detail.zone_height + "))";
+					+ zone_detail.zone_height + "))";*/
+			query_part['adunit'] = "AND (md_campaigns.campaign_type='network' OR (md_ad_units.adv_status=1"+"))";
 			break;
 
 		case 'interstitial':
@@ -1113,6 +1114,12 @@ exports.request = function(req, res, mysqlclient) {
 		var $zone_detail = this.zone_detail;
 		var $request_settings = this.request_settings;
 		var str = '';
+		if($request_settings['adid']!=''){
+			var isrec=1;
+		}else{
+			var isrec=0;
+		}
+		
 		// console.log($display_ad['main_type']);
 		if ($display_ad['main_type'] == 'display') {
 
@@ -1137,6 +1144,15 @@ exports.request = function(req, res, mysqlclient) {
 				str += "<imageurl><![CDATA[";
 				str += "" + $display_ad['image_url'] + "";
 				str += "]]></imageurl>";
+				str += "<bannerwidth><![CDATA[";
+				str += "" + $display_ad['width'] + "";
+				str += "]]></bannerwidth>";
+				str += "<bannerheight><![CDATA[";
+				str += "" + $display_ad['height'] + "";
+				str += "]]></bannerheight>";
+				str += "<isrec><![CDATA[";
+				str += "" + isrec + "";
+				str += "]]></isrec>";
 				str += "<animation id=\""+$request_settings['final_ad']['animation_id']+"\"><![CDATA[";
 				str += "" + global.animationurl+'/id/'+$request_settings['final_ad']['animation_id'] + "";
 				str += "]]></animation>";
