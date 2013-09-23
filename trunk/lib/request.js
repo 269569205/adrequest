@@ -6,6 +6,8 @@ exports.request = function(req, res, mysqlclient) {
 	
 	this.timestamp = parseInt((new Date).getTime() / 1000);
 	this.request_settings = [];
+	var _G=[];
+	//exports.request.prototype.request_settings=[];
 	this.zone_detail = [];
 	this.res = res;
 	this.req = req;
@@ -136,7 +138,7 @@ exports.request = function(req, res, mysqlclient) {
 
 	}
 	this.get_placement = function(data, request, callback) {
-		var query = "SELECT entry_id,creator_id, publication_id, zone_type, zone_width, zone_height, zone_refresh, zone_channel, zone_lastrequest, mobfox_backfill_active, mobfox_min_cpc_active, min_cpc, min_cpm, backfill_alt_1, backfill_alt_2, backfill_alt_3 FROM md_zones WHERE zone_hash='"
+		var query = "SELECT * FROM md_zones WHERE zone_hash='"
 				+ this.request_settings['placement_hash'] + "'";
 		var results = this.client
 				.query(
@@ -407,12 +409,12 @@ exports.request = function(req, res, mysqlclient) {
 			query_part['osversion'] = "";
 		}
 
-		switch (zone_detail.zone_type) {
+		/*switch (zone_detail.zone_type) {
 		case 'banner':
-			/*query_part['adunit'] = "AND (md_campaigns.campaign_type='network' OR (md_ad_units.adv_status=1 AND md_ad_units.adv_width<="
+			query_part['adunit'] = "AND (md_campaigns.campaign_type='network' OR (md_ad_units.adv_status=1 AND md_ad_units.adv_width<="
 					+ zone_detail.zone_width
 					+ " AND md_ad_units.adv_height<="
-					+ zone_detail.zone_height + "))";*/
+					+ zone_detail.zone_height + "))";
 			query_part['adunit'] = "AND (md_campaigns.campaign_type='network' OR (md_ad_units.adv_status=1"+"))";
 			break;
 
@@ -430,8 +432,9 @@ exports.request = function(req, res, mysqlclient) {
 						+ this.request_settings['screenHeight'] + "))";
 			}
 			break;
-		}
-		console.log(this.request_settings);
+		}*/
+		query_part['adunit'] = "AND (md_campaigns.campaign_type='network' OR (md_ad_units.adv_status=1"+"))";
+		//console.log(this.request_settings);
 		query_part['limit'] = "AND (md_campaign_limit.total_amount_left='' OR md_campaign_limit.total_amount_left>=1)";
 
 		if (!request_settings['cron_active']) {
@@ -478,7 +481,7 @@ exports.request = function(req, res, mysqlclient) {
 		 * ".$query_part['osversion']." ".$query_part['adunit']."
 		 * ".$query_part['limit']." group by md_campaigns.campaign_id";
 		 */
-		this.request_settings['campaign_query'] = "select md_campaigns.campaign_id,md_campaigns.animation_id,md_campaign_limit.cost_type,money,md_campaign_limit.price,md_campaigns.campaign_priority, md_campaigns.campaign_type, md_campaigns.campaign_networkid from md_campaigns LEFT JOIN md_campaign_targeting c1 ON md_campaigns.campaign_id = c1.campaign_id LEFT JOIN md_campaign_targeting c2 ON md_campaigns.campaign_id = c2.campaign_id LEFT JOIN md_campaign_targeting c3 ON md_campaigns.campaign_id = c3.campaign_id LEFT JOIN md_ad_units ON md_campaigns.campaign_id = md_ad_units.campaign_id LEFT JOIN md_campaign_limit ON md_campaigns.campaign_id = md_campaign_limit.campaign_id left join md_campaign_code co on md_campaigns.campaign_id=co.campaign_id left join md_campaign_map map on md_campaigns.campaign_id=map.campaign_id where "
+		this.request_settings['campaign_query'] = "select md_campaigns.campaign_id,md_campaigns.animation_id,an.lastupdatetime,md_campaign_limit.cost_type,money,md_campaign_limit.price,md_campaigns.campaign_priority, md_campaigns.campaign_type, md_campaigns.campaign_networkid from md_campaigns LEFT JOIN md_campaign_targeting c1 ON md_campaigns.campaign_id = c1.campaign_id LEFT JOIN md_campaign_targeting c2 ON md_campaigns.campaign_id = c2.campaign_id LEFT JOIN md_campaign_targeting c3 ON md_campaigns.campaign_id = c3.campaign_id LEFT JOIN md_ad_units ON md_campaigns.campaign_id = md_ad_units.campaign_id LEFT JOIN md_campaign_limit ON md_campaigns.campaign_id = md_campaign_limit.campaign_id left join md_campaign_code co on md_campaigns.campaign_id=co.campaign_id left join md_campaign_map map on md_campaigns.campaign_id=map.campaign_id left join md_animation an on an.animation_id=md_campaigns.animation_id where "
 				+ query_part['map']
 				+ " and (md_campaigns.country_target=1 and money>0"
 				+ query_part['geo']
@@ -525,6 +528,7 @@ exports.request = function(req, res, mysqlclient) {
 									add['money'] = results[i].money;
 									add['price'] = results[i].price;
 									add['animation_id'] = results[i].animation_id;
+									add['lastupdatetime'] = results[i].lastupdatetime;
 									campaignarray.push(add);
 								}
 								/*
@@ -797,48 +801,87 @@ exports.request = function(req, res, mysqlclient) {
 	}
 	this.select_adunit_query = function(request, callback) {
 		var query_part = [];
-		switch (this.zone_detail.zone_type) {
-		case 'banner':
-			query_part['size'] = "AND adv_width<="
+		switch (this.zone_detail.zone_isfit) {
+		case 0:
+			/*query_part['size'] = "AND adv_width<="
 					+ this.zone_detail.zone_width + " AND adv_height<="
-					+ this.zone_detail.zone_height + "";
+					+ this.zone_detail.zone_height + "";*/
+					if(this.request_settings['screenWidth']>this.zone_detail.zone_width){
+						this.request_settings['screenWidth']=this.zone_detail.zone_width;
+						this.request_settings['screenHeight']=this.zone_detail.zone_height;
+					}
+					
 			break;
 
-		case 'interstitial':
-			if (this.MAD_INTERSTITIALS_EXACTMATCH) {
-				query_part['size'] = "AND adv_width="
-						+ this.request_settings['screenWidth']
-						+ " AND adv_height="
-						+ this.request_settings['screenHeight'] + "";
-			} else {
-				query_part['size'] = "AND adv_width<="
-						+ this.request_settings['screenWidth']
-						+ " AND adv_height<="
-						+ this.request_settings['screenHeight'] + "";
-			}
+		case 1:
+			
 			break;
 		}
-
+		if(this.request_settings['screenWidth']=="480"||this.request_settings['screenWidth']=="360"||this.request_settings['screenWidth']=="540"){
+						query_part['size'] = "AND adv_width<=480";
+						request.request_settings['autoheight']=60;
+					}else if(this.request_settings['screenWidth']=="320"){
+						query_part['size'] = "AND adv_width<=320";
+						request.request_settings['autoheight']=50;
+					}else if(this.request_settings['screenWidth']=="640"&&this.request_settings['screenHeight']=="100"){
+						query_part['size'] = "AND adv_width<=640 AND adv_height<=100";
+						request.request_settings['autoheight']=100;
+					}else if(this.request_settings['screenWidth']=="640"&&this.request_settings['screenHeight']=="80"){
+						query_part['size'] = "AND adv_width<=640 AND adv_height<=80";
+						request.request_settings['autoheight']=80;
+					}else if(this.request_settings['screenWidth']=="720"||this.request_settings['screenWidth']=="800"||this.request_settings['screenWidth']=="1080"||this.request_settings['screenWidth']=="768"){
+						query_part['size'] = "AND adv_width<=720";
+						request.request_settings['autoheight']=90;
+					}else if(this.request_settings['screenWidth']=="1024"||this.request_settings['screenWidth']=="1280"||this.request_settings['screenWidth']=="1366"||this.request_settings['screenWidth']=="2048"||this.request_settings['screenWidth']=="1920"){
+						query_part['size'] = "AND adv_width<=1440";
+						request.request_settings['autoheight']=220;
+					}else{
+						query_part['size'] = "AND adv_width<="+this.request_settings['screenWidth']+"AND adv_height<="+this.request_settings['screenheight'];
+						request.request_settings['autoheight']=80;
+					}
 		var $query = "SELECT * FROM md_ad_units WHERE campaign_id='"
 				+ this.request_settings['final_ad'].campaign_id
 				+ "' AND adv_status=1 " + query_part['size']
-				+ " ORDER BY adv_width DESC, adv_height DESC";
+				+ " ORDER BY adv_width desc, adv_height DESC";
 		// console.log($query);
+		var request_settings=this.request_settings;
+		var client=this.client;
 		this.client.query($query, function selectCb(err, results, fields) {
 			if (err) {
 				throw err;
 			}
 			// console.log(results);
 			if (!results || results.length == 0) {
-				request.request_settings['ad_unit'] = null;
-			} else {
-				results.sort(function() {
-					return Math.random() > 0.5 ? -1 : 1;
+				//request.request_settings['ad_unit'] = null;
+				var $query = "SELECT *,abs(adv_width-"+request_settings['screenWidth']+") as d FROM md_ad_units WHERE campaign_id='"
+				+ request_settings['final_ad'].campaign_id+"' AND adv_status=1 order by d asc";
+				console.log( $query);
+				client.query($query, function selectCb(err, results, fields) {
+					if (err) {
+						throw err;
+					}
+					//console.log( exports.request.prototype.request_settings);
+					if (!results || results.length == 0) {
+						request.request_settings['ad_unit'] = results[0];
+					}else{
+						request.request_settings['ad_unit'] = results[0];
+					}
+					//console.log(request);
+					callback();
 				});
+				
+			} else {
+				/*results.sort(function() {
+					return Math.random() > 0.5 ? -1 : 1;
+				});*/
 				request.request_settings['ad_unit'] = results[0];
+				callback();
 			}
-			callback();
+			
 		});
+	}
+	this.get_G=function(){
+		return _G;
 	}
 	this.track_request = function($impression) {
 		var $request_settings = this.request_settings;
@@ -1150,10 +1193,13 @@ exports.request = function(req, res, mysqlclient) {
 				str += "<bannerheight><![CDATA[";
 				str += "" + $display_ad['height'] + "";
 				str += "]]></bannerheight>";
+				str += "<autoheight><![CDATA[";
+				str += "" + $request_settings['autoheight'] + "";
+				str += "]]></autoheight>";
 				str += "<isrec><![CDATA[";
 				str += "" + isrec + "";
 				str += "]]></isrec>";
-				str += "<animation id=\""+$request_settings['final_ad']['animation_id']+"\"><![CDATA[";
+				str += "<animation lastupdatetime=\""+$request_settings['final_ad']['lastupdatetime']+"\" id=\""+$request_settings['final_ad']['animation_id']+"\"><![CDATA[";
 				str += "" + global.animationurl+'/id/'+$request_settings['final_ad']['animation_id'] + "";
 				str += "]]></animation>";
 				str += "<urltype>";

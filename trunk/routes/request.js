@@ -204,7 +204,10 @@ exports.index = function(req, res){
 			request.select_adunit_query(request,callback);
 		}],
 		build_ad:['select_adunit_query',function(callback){
-			//console.log(request.request_settings['ad_unit']);
+			//var _G=request.get_G();
+			//console.log(request.get_G());
+			//request.request_settings['ad_unit']=_G.ad_unit;
+			console.log(request.request_settings['ad_unit']);
 			if(!request.request_settings['ad_unit']){
 				//launch_backfill();
 				request.print_error(1, 'no found adunit', request.request_settings['sdk'], 1);
