@@ -18,8 +18,8 @@ exports.index = function(req, res){
 		data.rt='';
 	}
 	//--INSERT SMWLOG DATA--ANDY 2013-9-5
-	 var log = require ('./../lib/logmod.js'); 
-	 log.insertSmwlog(data);
+	// var log = require ('./../lib/logmod.js'); 
+	// log.insertSmwlog(data);
 	 
 	if(typeof(data.p)=='undefined'){
 		request.request_settings['referer']='';
