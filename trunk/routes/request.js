@@ -59,6 +59,16 @@ exports.index = function(req, res){
 	}else{
 		request.request_settings['showanimation']=0;
 	}
+	if(typeof(data.IMSI)!='undefined'){
+		request.request_settings['IMSI']=data.IMSI;
+	}else{
+		request.request_settings['IMSI']="";
+	}
+	if(typeof(data.connection_type)!='undefined'){
+		request.request_settings['netway']=data.connection_type;
+	}else{
+		request.request_settings['netway']="";
+	}
 	switch(data.rt){
 	case 'javascript':
 		request.request_settings['response_type']='json';
