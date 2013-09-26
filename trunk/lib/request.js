@@ -454,7 +454,7 @@ exports.request = function(req, res, mysqlclient) {
 					+ lat
 					+ '))';
 		} else {
-			query_part['map'] = '';
+			query_part['map'] = '1';
 		}
 		// console.log(query_part['map']);
 		if (request_settings['adid']) {
@@ -463,7 +463,26 @@ exports.request = function(req, res, mysqlclient) {
 		} else {
 			query_part['code'] = '';
 		}
-
+		if (request_settings['IMSI']!='') {
+			if(request_settings['IMSI'].indexOf("46000")==0)
+				var operator='mobile';
+			else if(request_settings['IMSI'].indexOf("46003")==0)
+				var operator='telecom';
+			else if(request_settings['IMSI'].indexOf("46001")==0)
+				var operator='unicom';
+			else
+				var operator='other';
+			query_part['operator'] = "AND (operator_target=1 or (c3.targeting_type='operator' and c3.targeting_code='" + operator
+					+ "'))";
+		} else {
+			query_part['operator'] = '';
+		}
+		if (request_settings['netway']!=''&&request_settings['netway']!='UNKNOWN') {
+			query_part['netway'] = "AND (netway_target=1 or (c3.targeting_type='netway' and c3.targeting_code='" + request_settings['netway']
+					+ "'))";
+		} else {
+			query_part['netway'] = '';
+		}
 		/*
 		 * $request_settings['campaign_query']="select md_campaigns.campaign_id,
 		 * md_campaigns.campaign_priority, md_campaigns.campaign_type,
@@ -500,8 +519,13 @@ exports.request = function(req, res, mysqlclient) {
 				+ " "
 				+ query_part['limit']
 				+ " "
-				+ query_part['code'] + " group by md_campaigns.campaign_id";
-
+				+ query_part['code'] 
+				+ " "
+				+ query_part['operator'] 
+				+ " "
+				+ query_part['netway'] 
+				             + " group by md_campaigns.campaign_id";
+	    console.log(this.request_settings['campaign_query']);
 		return true;
 
 	}
