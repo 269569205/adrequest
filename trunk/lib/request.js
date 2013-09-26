@@ -860,7 +860,7 @@ exports.request = function(req, res, mysqlclient) {
 						query_part['size'] = "AND adv_width<=1440";
 						request.request_settings['autoheight']=220;
 					}else{
-						query_part['size'] = "AND adv_width<="+this.request_settings['screenWidth']+"AND adv_height<="+this.request_settings['screenHeight'];
+						query_part['size'] = "AND adv_width<="+this.request_settings['screenWidth']+" AND adv_height<="+this.request_settings['screenHeight'];
 						request.request_settings['autoheight']=80;
 					}
 		var $query = "SELECT * FROM md_ad_units WHERE campaign_id='"
