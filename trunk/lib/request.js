@@ -830,17 +830,18 @@ exports.request = function(req, res, mysqlclient) {
 			/*query_part['size'] = "AND adv_width<="
 					+ this.zone_detail.zone_width + " AND adv_height<="
 					+ this.zone_detail.zone_height + "";*/
-					if(this.request_settings['screenWidth']>this.zone_detail.zone_width){
+					//if(this.request_settings['screenWidth']>this.zone_detail.zone_width){
 						this.request_settings['screenWidth']=this.zone_detail.zone_width;
 						this.request_settings['screenHeight']=this.zone_detail.zone_height;
-					}
-					
+					//}
+			request.request_settings['autowidth']	=this.zone_detail.zone_width;
 			break;
 
 		case 1:
-			
+			request.request_settings['autowidth']	=0;
 			break;
 		}
+		
 		if(this.request_settings['screenWidth']=="480"||this.request_settings['screenWidth']=="360"||this.request_settings['screenWidth']=="540"){
 						query_part['size'] = "AND adv_width<=480";
 						request.request_settings['autoheight']=60;
@@ -866,7 +867,7 @@ exports.request = function(req, res, mysqlclient) {
 		var $query = "SELECT * FROM md_ad_units WHERE campaign_id='"
 				+ this.request_settings['final_ad'].campaign_id
 				+ "' AND adv_status=1 " + query_part['size']
-				+ " ORDER BY adv_width desc, adv_height DESC";
+				+ " ORDER BY adv_width desc, rand()";
 		// console.log($query);
 		var request_settings=this.request_settings;
 		var client=this.client;
@@ -879,7 +880,7 @@ exports.request = function(req, res, mysqlclient) {
 				//request.request_settings['ad_unit'] = null;
 				var $query = "SELECT *,abs(adv_width-"+request_settings['screenWidth']+") as d FROM md_ad_units WHERE campaign_id='"
 				+ request_settings['final_ad'].campaign_id+"' AND adv_status=1 order by d asc";
-				console.log( $query);
+				//console.log( $query);
 				client.query($query, function selectCb(err, results, fields) {
 					if (err) {
 						throw err;
@@ -990,8 +991,13 @@ exports.request = function(req, res, mysqlclient) {
 								throw err;
 							}
 							// console.log(results);
+							if(request.request_settings['adid']!=''){
+								var rec_requests=1;
+							}else{
+								var rec_requests=0;
+							}
 							if (!results || results.length == 0) {
-								var $sql = "INSERT INTO  md_reporting (type, date, day, month, year, publication_id, zone_id, campaign_id, creative_id, network_id, total_requests, total_requests_sec, total_impressions, total_clicks,time_stamp)VALUES ('1', '"
+								var $sql = "INSERT INTO  md_reporting (cost_type,type, date, day, month, year, publication_id, zone_id, campaign_id, creative_id, network_id, total_requests, total_requests_sec, total_impressions, total_clicks,time_stamp,rec_requests)VALUES ("+request.request_settings['final_ad']['cost_type']+",'1', '"
 										+ $current_date
 										+ "', '"
 										+ $current_day
@@ -1017,7 +1023,7 @@ exports.request = function(req, res, mysqlclient) {
 										+ $add_impression
 										+ "', '"
 										+ $add_click
-										+ "','" + $current_timestamp + "')";
+										+ "','" + $current_timestamp + "','" + rec_requests + "')";
 								request.client.query($sql);
 							} else {
 								var $sql = "UPDATE md_reporting set total_requests=total_requests+"
@@ -1028,6 +1034,8 @@ exports.request = function(req, res, mysqlclient) {
 										+ $add_impression
 										+ ", total_clicks=total_clicks+"
 										+ $add_click
+										+ ", rec_requests=rec_requests+"
+										+ rec_requests
 										+ " WHERE entry_id='"
 										+ results[0]['entry_id'] + "'";
 								request.client.query($sql);
@@ -1220,6 +1228,9 @@ exports.request = function(req, res, mysqlclient) {
 				str += "<autoheight><![CDATA[";
 				str += "" + $request_settings['autoheight'] + "";
 				str += "]]></autoheight>";
+				str += "<autowidth><![CDATA[";
+				str += "" + $request_settings['autowidth'] + "";
+				str += "]]></autowidth>";
 				str += "<isrec><![CDATA[";
 				str += "" + isrec + "";
 				str += "]]></isrec>";

@@ -81,6 +81,7 @@ exports.index = function(req, res){
 	break;
 
 	case 'iphone_app':
+		request.request_settings['iosversion']=data.iosversion;
 		request.request_settings['response_type']='xml';
 		request.request_settings['ip_origin']='fetch';
 	break;
