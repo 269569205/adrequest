@@ -1093,27 +1093,27 @@ exports.request = function(req, res, mysqlclient) {
 
 			switch ($request_settings['active_campaign_type']) {
 			case 'normal':
-				$base_ctr = $base_ctr + "&type=normal&campaign_id="
+				$base_ctr = $base_ctr + "?type=normal&campaign_id="
 						+ $display_ad['campaign_id'] + "&ad_id="
 						+ $display_ad['ad_id'] + "";
 				break;
 
 			case 'network':
-				$base_ctr = $base_ctr + "&type=network&campaign_id="
+				$base_ctr = $base_ctr + "?type=network&campaign_id="
 						+ $request_settings['active_campaign'] + "&network_id="
 						+ $request_settings['network_id'] + "";
 				break;
 
 			case 'backfill':
-				$base_ctr = $base_ctr + "&type=backfill&network_id="
+				$base_ctr = $base_ctr + "?type=backfill&network_id="
 						+ $request_settings['network_id'];
 				break;
 			}
 
-			$base_ctr = $base_ctr
+			/*$base_ctr = $base_ctr
 					+ "&c="
 					+ strtr(base64_encode(this.get_destination_url()), '+/=',
-							'-_,');
+							'-_,');*/
 
 			$display_ad['final_click_url'] = $base_ctr;
 		}
