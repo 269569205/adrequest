@@ -1143,11 +1143,11 @@ exports.request = function(req, res, mysqlclient) {
 							+ $display_ad['image_url']
 							+ '" border="0"/></a><br>';
 				} else {
-					var $final_markup = '<body style="text-align:center;margin:0;padding:0;"><div align="center"><a id="mAdserveAdLink" href="'
+					var $final_markup = '<body style="text-align:center;margin:0;padding:0;"><a id="mAdserveAdLink" href="'
 							+ $display_ad['final_click_url']
 							+ '" target="_self"><img id="mAdserveAdImage" src="'
 							+ $display_ad['image_url']
-							+ '" border="0"/></a></div></body>';
+							+ '" border="0"/></a></body>';
 				}
 				break;
 
