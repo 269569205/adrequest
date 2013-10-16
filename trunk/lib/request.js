@@ -1090,7 +1090,7 @@ exports.request = function(req, res, mysqlclient) {
 				+ '/h/' + $request_settings['request_hash'];
 
 		if ($display_ad['main_type'] == 'display') {
-
+			if($request_settings['ad_unit'].s_adv_type=='click'&&$request_settings['ad_unit'].s_adv_content!=''){
 			switch ($request_settings['active_campaign_type']) {
 			case 'normal':
 				$base_ctr = $base_ctr + "?type=normal&campaign_id="
@@ -1109,13 +1109,16 @@ exports.request = function(req, res, mysqlclient) {
 						+ $request_settings['network_id'];
 				break;
 			}
-
+			
 			/*$base_ctr = $base_ctr
 					+ "&c="
 					+ strtr(base64_encode(this.get_destination_url()), '+/=',
 							'-_,');*/
 
-			$display_ad['final_click_url'] = $base_ctr;
+				$display_ad['final_click_url'] = $base_ctr;
+			}else{
+				$display_ad['final_click_url']='';
+			}
 		}
 		this.display_ad = $display_ad;
 	}
@@ -1143,11 +1146,17 @@ exports.request = function(req, res, mysqlclient) {
 							+ $display_ad['image_url']
 							+ '" border="0"/></a><br>';
 				} else {
+					if($request_settings['ad_unit'].s_adv_type!='none'){
 					var $final_markup = '<body style="text-align:center;margin:0;padding:0;"><a id="mAdserveAdLink" href="'
 							+ $display_ad['final_click_url']
 							+ '" target="_self"><img id="mAdserveAdImage" src="'
 							+ $display_ad['image_url']
 							+ '" border="0"/></a></body>';
+					}else{
+						var $final_markup = '<body style="text-align:center;margin:0;padding:0;"><img id="mAdserveAdImage" src="'
+						+ $display_ad['image_url']
+						+ '" border="0"/></body>';
+					}
 				}
 				break;
 
